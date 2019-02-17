@@ -27,7 +27,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lz4_stream.hpp">
+    <ClInclude Include="lz4stream.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
