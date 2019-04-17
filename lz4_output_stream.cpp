@@ -25,15 +25,14 @@
 
 // Standard headers
 #include <cassert>
+#include <cstring>
+
 #include <exception>
 #include <functional>
 
-LZ4OutputStream::LZ4OutputBuffer::LZ4OutputBuffer(std::ostream &sink)
+LZ4OutputStream::LZ4OutputBuffer::LZ4OutputBuffer(std::ostream &sink, const int compression_level_)
   : sink_(sink),
     src_buf_{},
-    // TODO: No need to recalculate the dest_buf_ size on each construction
-    dest_buf_(LZ4F_compressBound(src_buf_.size(), nullptr)),
-    ctx_(nullptr),
     closed_(false)
 {
   char* base = &src_buf_.front();
@@ -45,6 +44,10 @@ LZ4OutputStream::LZ4OutputBuffer::LZ4OutputBuffer(std::ostream &sink)
     throw std::runtime_error(std::string("Failed to create LZ4 compression context: ")
                              + LZ4F_getErrorName(ret));
   }
+  std::memset(&preferences_, 0, sizeof(LZ4F_preferences_t));
+  preferences_.compressionLevel = compression_level_;
+  // TODO: No need to recalculate the dest_buf_ size on each construction
+  dest_buf_.resize(LZ4F_compressBound(src_buf_.size(), &preferences_));
   writeHeader();
 }
 
@@ -84,7 +87,7 @@ void LZ4OutputStream::LZ4OutputBuffer::compressAndWrite()
 void LZ4OutputStream::LZ4OutputBuffer::writeHeader()
 {
   assert(!closed_);
-  size_t ret = LZ4F_compressBegin(ctx_, &dest_buf_.front(), dest_buf_.size(), nullptr);
+  size_t ret = LZ4F_compressBegin(ctx_, &dest_buf_.front(), dest_buf_.size(), &preferences_);
   if (LZ4F_isError(ret) != 0)
   {
     throw std::runtime_error(std::string("Failed to start LZ4 compression: ")

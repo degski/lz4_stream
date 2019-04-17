@@ -76,29 +76,31 @@ class LZ4OutputStream : public std::ostream
   }
 
  private:
-  class LZ4OutputBuffer : public std::streambuf
-  {
-  public:
-    LZ4OutputBuffer(std::ostream &sink);
-    ~LZ4OutputBuffer();
+ class LZ4OutputBuffer : public std::streambuf {
+     public:
+     LZ4OutputBuffer ( std::ostream &sink, const int compression_level_ = 4 );
+     ~LZ4OutputBuffer ( );
 
-    LZ4OutputBuffer(const LZ4OutputBuffer &) = delete;
-    LZ4OutputBuffer& operator= (const LZ4OutputBuffer &) = delete;
-    void close();
+     LZ4OutputBuffer ( const LZ4OutputBuffer & ) = delete;
+     LZ4OutputBuffer& operator= ( const LZ4OutputBuffer & ) = delete;
+     void close ( );
 
-  private:
-    int_type overflow(int_type ch) override;
-    int_type sync() override;
+     private:
+     int_type overflow ( int_type ch ) override;
+     int_type sync ( ) override;
 
-    void compressAndWrite();
-    void writeHeader();
-    void writeFooter();
+     void compressAndWrite ( );
+     void writeHeader ( );
+     void writeFooter ( );
 
-    std::ostream& sink_;
-    std::array<char, 256> src_buf_;
-    std::vector<char> dest_buf_;
-    LZ4F_compressionContext_t ctx_;
-    bool closed_;
+     std::ostream& sink_;
+     std::array<char, 256> src_buf_;
+     std::vector<char> dest_buf_;
+
+     LZ4F_compressionContext_t ctx_;
+     LZ4F_preferences_t preferences_;
+
+     bool closed_;
   };
 
   LZ4OutputBuffer* buffer_;
@@ -155,5 +157,3 @@ class LZ4InputStream : public std::istream
 
   LZ4InputBuffer* buffer_;
 };
-
-#endif // LZ4_STREAM
