@@ -50,9 +50,9 @@ class LZ4OutputStream : public std::ostream
    *
    * @param sink The stream to write compressed data to
    */
-  LZ4OutputStream(std::ostream& sink)
-    : std::ostream(new LZ4OutputBuffer(sink)),
-      buffer_(dynamic_cast<LZ4OutputBuffer*>(rdbuf()))
+  LZ4OutputStream(std::ostream& sink, const int compression_level_ = 4 )
+    : std::ostream(new LZ4OutputBuffer(sink, compression_level_)),
+      buffer_(static_cast<LZ4OutputBuffer*>(rdbuf()))
   {
     assert(buffer_);
   }
@@ -79,7 +79,7 @@ class LZ4OutputStream : public std::ostream
  private:
  class LZ4OutputBuffer : public std::streambuf {
      public:
-     LZ4OutputBuffer ( std::ostream &sink, const int compression_level_ = 4 );
+     LZ4OutputBuffer ( std::ostream &sink, const int compression_level_ );
      ~LZ4OutputBuffer ( );
 
      LZ4OutputBuffer ( const LZ4OutputBuffer & ) = delete;
@@ -124,7 +124,7 @@ class LZ4InputStream : public std::istream
    */
   LZ4InputStream(std::istream& source)
     : std::istream(new LZ4InputBuffer(source)),
-      buffer_(dynamic_cast<LZ4InputBuffer*>(rdbuf()))
+      buffer_(static_cast<LZ4InputBuffer*>(rdbuf()))
   {
     assert(buffer_);
   }
