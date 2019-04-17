@@ -92,7 +92,6 @@ class LZ4OutputStream : public std::ostream {
         std::vector<char> dest_buf_;
         LZ4F_compressionContext_t ctx_;
         LZ4F_preferences_t preferences_;
-
         bool closed_;
     };
 
