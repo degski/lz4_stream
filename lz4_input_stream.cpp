@@ -25,7 +25,7 @@
 
 LZ4InputStream::LZ4InputBuffer::LZ4InputBuffer ( std::istream & source ) :
     source_ ( source ), src_buf_ ( ), dest_buf_ ( ), offset_ ( 0 ), src_buf_size_ ( 0 ), ctx_ ( nullptr ) {
-    size_t ret = LZ4F_createDecompressionContext ( &ctx_, LZ4F_VERSION );
+    std::size_t ret = LZ4F_createDecompressionContext ( &ctx_, LZ4F_VERSION );
     if ( LZ4F_isError ( ret ) != 0 )
         throw std::runtime_error ( std::string ( "Failed to create LZ4 decompression context: " ) + LZ4F_getErrorName ( ret ) );
     setg ( &src_buf_.front ( ), &src_buf_.front ( ), &src_buf_.front ( ) );
@@ -34,14 +34,14 @@ LZ4InputStream::LZ4InputBuffer::LZ4InputBuffer ( std::istream & source ) :
 LZ4InputStream::int_type LZ4InputStream::LZ4InputBuffer::underflow ( ) {
     if ( offset_ == src_buf_size_ ) {
         source_.read ( &src_buf_.front ( ), src_buf_.size ( ) );
-        src_buf_size_ = static_cast<size_t> ( source_.gcount ( ) );
+        src_buf_size_ = static_cast<std::size_t> ( source_.gcount ( ) );
         offset_       = 0;
     }
     if ( src_buf_size_ == 0 )
         return traits_type::eof ( );
-    size_t src_size  = src_buf_size_ - offset_;
-    size_t dest_size = dest_buf_.size ( );
-    size_t ret = LZ4F_decompress ( ctx_, &dest_buf_.front ( ), &dest_size, &src_buf_.front ( ) + offset_, &src_size, nullptr );
+    std::size_t src_size  = src_buf_size_ - offset_;
+    std::size_t dest_size = dest_buf_.size ( );
+    std::size_t ret = LZ4F_decompress ( ctx_, &dest_buf_.front ( ), &dest_size, &src_buf_.front ( ) + offset_, &src_size, nullptr );
     offset_ += src_size;
     if ( LZ4F_isError ( ret ) != 0 )
         throw std::runtime_error ( std::string ( "LZ4 decompression failed: " ) + LZ4F_getErrorName ( ret ) );
