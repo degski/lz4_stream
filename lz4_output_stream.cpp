@@ -23,9 +23,7 @@
 
 #include "lz4stream.hpp"
 
-// Standard headers
 #include <cassert>
-#include <cstring>
 
 #include <exception>
 #include <functional>
@@ -33,6 +31,7 @@
 LZ4OutputStream::LZ4OutputBuffer::LZ4OutputBuffer(std::ostream &sink, const int compression_level_)
   : sink_(sink),
     src_buf_{},
+    preferences_{},
     closed_(false)
 {
   char* base = &src_buf_.front();
@@ -44,7 +43,6 @@ LZ4OutputStream::LZ4OutputBuffer::LZ4OutputBuffer(std::ostream &sink, const int 
     throw std::runtime_error(std::string("Failed to create LZ4 compression context: ")
                              + LZ4F_getErrorName(ret));
   }
-  std::memset(&preferences_, 0, sizeof(LZ4F_preferences_t));
   preferences_.compressionLevel = compression_level_;
   // TODO: No need to recalculate the dest_buf_ size on each construction
   dest_buf_.resize(LZ4F_compressBound(src_buf_.size(), &preferences_));
