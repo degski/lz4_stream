@@ -28,11 +28,12 @@
 
 // Standard headers
 #include <cassert>
-#include <streambuf>
-#include <iostream>
-#include <vector>
-#include <memory>
+
 #include <array>
+#include <iostream>
+#include <memory>
+#include <streambuf>
+#include <vector>
 
 /**
  * @brief An output stream that will LZ4 compress the input data.
