@@ -35,39 +35,20 @@
 #include <streambuf>
 #include <vector>
 
-/**
- * @brief An output stream that will LZ4 compress the input data.
- *
- * An output stream that will wrap another output stream and LZ4
- * compress its input data to that stream.
- *
- */
 class LZ4OutputStream : public std::ostream {
     public:
-    /**
-     * @brief Constructs an LZ4 compression output stream
-     *
-     * @param sink The stream to write compressed data to
-     */
+
     LZ4OutputStream ( std::ostream & sink, const int compression_level_ = 4 ) :
         std::ostream ( new LZ4OutputBuffer ( sink, compression_level_ ) ),
         buffer_ ( static_cast<LZ4OutputBuffer *> ( rdbuf ( ) ) ) {
         assert ( buffer_ );
     }
 
-    /**
-     * @brief Destroys the LZ4 output stream. Calls close() if not already called.
-     */
     ~LZ4OutputStream ( ) {
         close ( );
         delete buffer_;
     }
 
-    /**
-     * @brief Flushes and writes LZ4 footer data to the LZ4 output stream.
-     *
-     * After calling this function no more data should be written to the stream.
-     */
     void close ( ) { buffer_->close ( ); }
 
     private:
@@ -98,28 +79,14 @@ class LZ4OutputStream : public std::ostream {
     LZ4OutputBuffer * buffer_;
 };
 
-/**
- * @brief An input stream that will LZ4 decompress output data.
- *
- * An input stream that will wrap another input stream and LZ4
- * decompress its output data to that stream.
- *
- */
 class LZ4InputStream : public std::istream {
     public:
-    /**
-     * @brief Constructs an LZ4 decompression input stream
-     *
-     * @param source The stream to read LZ4 compressed data from
-     */
+
     LZ4InputStream ( std::istream & source ) :
         std::istream ( new LZ4InputBuffer ( source ) ), buffer_ ( static_cast<LZ4InputBuffer *> ( rdbuf ( ) ) ) {
         assert ( buffer_ );
     }
 
-    /**
-     * @brief Destroys the LZ4 output stream.
-     */
     ~LZ4InputStream ( ) { delete buffer_; }
 
     private:
